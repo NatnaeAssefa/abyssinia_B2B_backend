@@ -1,0 +1,107 @@
+# Redirect HTTP to HTTPS for Read-Sea.ai and api.Read-Sea.ai
+server {
+    listen 80;
+    server_name Read-Sea.ai www.Read-Sea.ai api.Read-Sea.ai;
+
+    # Redirect all HTTP traffic to HTTPS
+    return 301 https://$host$request_uri;
+}
+
+# Redirect www.Read-Sea.ai to Read-Sea.ai over HTTPS
+server {
+    listen 443 ssl;
+    server_name www.Read-Sea.ai;
+
+    # SSL certificate for Read-Sea.ai
+    ssl_certificate /etc/letsencrypt/live/Read-Sea.ai-0002/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/Read-Sea.ai-0002/privkey.pem;
+
+    # Redirect www.Read-Sea.ai to Read-Sea.ai
+    return 301 https://Read-Sea.ai$request_uri;
+}
+
+# Handle HTTPS for Read-Sea.ai (Frontend proxy to S3)
+server {
+    listen 443 ssl;
+    server_name Read-Sea.ai;
+
+    # SSL certificate for Read-Sea.ai
+    ssl_certificate /etc/letsencrypt/live/Read-Sea.ai-0002/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/Read-Sea.ai-0002/privkey.pem;
+
+    # SSL settings
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 10m;
+
+    # Security headers
+    add_header Strict-Transport-Security "max-age=31536000; includeSubdomains" always;
+    add_header X-Content-Type-Options nosniff;
+    add_header X-Frame-Options DENY;
+    add_header X-XSS-Protection "1; mode=block";
+    add_header Referrer-Policy no-referrer-when-downgrade;
+
+    # Proxy root path "/" to S3 bucket (frontend)
+    location / {
+        proxy_pass http://Read-Sea.ai.s3-website.us-east-2.amazonaws.com;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+
+
+# Handle HTTPS for api.Read-Sea.ai (Backend proxy to Docker)
+server {
+    listen 443 ssl;
+    server_name api.Read-Sea.ai;
+
+    # SSL certificate for api.Read-Sea.ai
+    ssl_certificate /etc/letsencrypt/live/Read-Sea.ai-0002/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/Read-Sea.ai-0002/privkey.pem;
+
+    # SSL settings
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 10m;
+
+    # Security headers
+    add_header Strict-Transport-Security "max-age=31536000; includeSubdomains" always;
+    add_header X-Content-Type-Options nosniff;
+    add_header X-Frame-Options DENY;
+    add_header X-XSS-Protection "1; mode=block";
+    add_header Referrer-Policy no-referrer-when-downgrade;
+
+    # Proxy requests to backend Docker server
+    location / {
+        proxy_pass http://localhost:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Enable CORS headers for all responses, including errors
+        add_header Access-Control-Allow-Origin "*" always;
+        add_header Access-Control-Allow-Methods "GET, POST, OPTIONS, DELETE, PUT" always;
+        add_header Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization" always;
+
+        # Handle preflight requests (OPTIONS method)
+        if ($request_method = OPTIONS) {
+            add_header Access-Control-Allow-Origin "*" always;
+            add_header Access-Control-Allow-Methods "GET, POST, OPTIONS, DELETE, PUT" always;
+            add_header Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization" always;
+            add_header Access-Control-Max-Age 1728000 always;
+            return 204;
+        }
+
+        # Adjust Content-Security-Policy for cross-origin image loading
+        add_header Content-Security-Policy "default-src 'self'; img-src * data:;" always;
+        add_header Cross-Origin-Resource-Policy cross-origin always;
+    }
+
+    # Ensure Nginx does not intercept errors and replace them with its own error pages
+    proxy_intercept_errors off;
+}
