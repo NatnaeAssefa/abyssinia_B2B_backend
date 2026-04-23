@@ -64,8 +64,8 @@ export const env: any = {
   GOOGLE_TOKEN_URL: process.env.GOOGLE_TOKEN_URL || "",
   GOOGLE_USER_INFO_URL: process.env.GOOGLE_USER_INFO_URL || "",
 
-  FACEBOOK_APP_ID: process.env.FACEBOOK_APP_ID || "",
-  FACEBOOK_APP_SECRET: process.env.FACEBOOK_APP_SECRET || "",
+  FACEBOOK_APP_ID: process.env.FACEBOOK_APP_ID || "726041843034437",
+  FACEBOOK_APP_SECRET: process.env.FACEBOOK_APP_SECRET || "a081659398cdc2c97f19d6c3f25c4026",
   
   WATER_MARK_IMAGE: process.env.WATER_MARK_IMAGE || "",
   WATER_MARK_IMAGE_DARK: process.env.WATER_MARK_IMAGE_DARK || "",

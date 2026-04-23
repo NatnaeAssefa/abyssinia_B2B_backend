@@ -52,16 +52,24 @@ import LogService from "./services/Log/Log.service";
 import { AccessRuleService, RoleService } from "./services/User";
 import { UserType } from "./utilities/constants/Constants";
 
-initializeDB().then(() => {
-  AccessRuleService.createIfNotExist(access_rules).then(() => {
-    RoleService.createSuperAdminRole(UserType.SUPER_ADMIN).then((r) => {
-      LogService.LogInfo(`Super Admin role creation done`);
-    }).catch((e) => {
-      LogService.LogInfo(`Super Admin role already exists! - ${e}`);
-    })
+const initializeApplication = async () => {
+  try {
+    await initializeDB();
+    await AccessRuleService.createIfNotExist(access_rules);
     LogService.LogInfo(`Access rules sync done`);
-  });
-});
+
+    try {
+      await RoleService.createSuperAdminRole(UserType.SUPER_ADMIN);
+      LogService.LogInfo(`Super Admin role creation done`);
+    } catch (error: any) {
+      LogService.LogInfo(`Super Admin role already exists! - ${error}`);
+    }
+  } catch (error: any) {
+    LogService.LogError(`Application initialization failed: ${error?.message || error}`);
+  }
+};
+
+void initializeApplication();
 
 /**
  * Routes

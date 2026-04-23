@@ -4,6 +4,7 @@ import ServerResponse from "../../utilities/response/Response";
 import { ParseQuery } from "../../utilities/pagination/Pagination";
 import Joi from "joi";
 import { User } from "../../models/User";
+import { ProductImage } from "../../models/MarketPlace";
 
 const ModelName = "Product";
 
@@ -11,6 +12,11 @@ class ProductController {
   static findMany(request: Request, response: Response) {
     const startTime = new Date();
     const parsedQuery: any = ParseQuery(request.query);
+    parsedQuery.query = parsedQuery.query || {};
+    parsedQuery.query.include = [
+      ...(parsedQuery.query.include || []),
+      { model: ProductImage, as: "product_images", required: false },
+    ];
 
     ProductService.findMany(parsedQuery.query, parsedQuery.paranoid)
       .then((result) => {
