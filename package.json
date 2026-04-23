@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node src/app.ts",
+    "start": "node dist/app.js",
+    "build": "tsc",
     "dev": "nodemon",
     "seed": "ts-node src/seeds/index.ts",
     "seed:categories:extra": "ts-node src/seeds/categories.extra.seed.ts"
