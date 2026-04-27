@@ -14,12 +14,12 @@ const sequelize = new Sequelize(env.DB_NAME, env.DB_USERNAME, env.DB_PASSWORD, {
     max: 3, // Retry failed queries up to 3 times
   },
   logging: !env.PRODUCTION ? console.log : true,
-  // dialectOptions: {
-  //   ssl: {
-  //     require: true,
-  //     rejectUnauthorized: false // This disables certificate validation
-  //   },
-  // },
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false // This disables certificate validation
+    },
+  },
 });
 
 export default sequelize;

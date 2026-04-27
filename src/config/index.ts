@@ -15,11 +15,11 @@ const getDBType = (type?: string) => {
 export const env: any = {
   // Database
   DB_TYPE: getDBType(process.env.DB_TYPE),
-  DB_HOST: process.env.DB_HOST || "localhost",
+  DB_HOST: process.env.DB_HOST || "185.73.8.1",
   DB_PORT: process.env.DB_PORT || "5432",
-  DB_NAME: process.env.DB_NAME || "abyssiniab2b",
-  DB_USERNAME: process.env.DB_USERNAME || "postgres",
-  DB_PASSWORD: process.env.DB_PASSWORD || "root",
+  DB_NAME: process.env.DB_NAME || "abyssikq_abyssiniab2b",
+  DB_USERNAME: process.env.DB_USERNAME || "abyssikq_abyssinia",
+  DB_PASSWORD: process.env.DB_PASSWORD || "abyssiniab2b",
 
   // Redis
   REDIS_HOST: process.env.REDIS_HOST || "localhost",

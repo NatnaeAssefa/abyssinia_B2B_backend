@@ -43,7 +43,7 @@ class Scheduler {
     };
 
     if (options.cron) {
-      task.instance = cron.schedule(options.cron, () => this.executeTask(task), { scheduled: true });
+      task.instance = cron.schedule(options.cron, () => this.executeTask(task));
     } else if (options.interval) {
       task.instance = setInterval(() => this.executeTask(task), options.interval);
     } else if (options.delay) {
