@@ -105,6 +105,10 @@ app.use("/", (req, res) => {
   }
 });
 
-httpServer.listen(env.PORT, () => {
-  LogService.LogInfo(`Server Running on port ${env.PORT}`);
-});
+// httpServer.listen(env.PORT, () => {
+//   LogService.LogInfo(`Server Running on port ${env.PORT}`);
+// });
+
+export default app;
+
+module.exports = app;

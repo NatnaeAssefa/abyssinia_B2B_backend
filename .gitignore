@@ -150,3 +150,6 @@ dist
 
 .idea/
 .vscode
+
+*.js
+*.js.map

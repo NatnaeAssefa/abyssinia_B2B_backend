@@ -1,4 +1,7 @@
 import { AccessType, UserType } from "../utilities/constants/Constants";
+import dotenv from "dotenv";
+
+dotenv.config({ path: "./.env" });
 
 export const DB_TYPES = {
   MYSQL: "mysql",
@@ -15,11 +18,11 @@ const getDBType = (type?: string) => {
 export const env: any = {
   // Database
   DB_TYPE: getDBType(process.env.DB_TYPE),
-  DB_HOST: process.env.DB_HOST || "185.73.8.1",
+  DB_HOST: process.env.DB_HOST || "database-1.c9qkeooek2sp.eu-north-1.rds.amazonaws.com",
   DB_PORT: process.env.DB_PORT || "5432",
-  DB_NAME: process.env.DB_NAME || "abyssikq_abyssiniab2b",
-  DB_USERNAME: process.env.DB_USERNAME || "abyssikq_abyssinia",
-  DB_PASSWORD: process.env.DB_PASSWORD || "abyssiniab2b",
+  DB_NAME: process.env.DB_NAME || "abyssinia",
+  DB_USERNAME: process.env.DB_USERNAME || "postgres",
+  DB_PASSWORD: process.env.DB_PASSWORD || "jehoaddan6",
 
   // Redis
   REDIS_HOST: process.env.REDIS_HOST || "localhost",
