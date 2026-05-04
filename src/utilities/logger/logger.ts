@@ -1,12 +1,13 @@
 import winston from "winston";
-import { env } from "../../config";
+
+const isVercel = !!process.env.VERCEL;
 
 const transports = [
   new winston.transports.Console(),
 ];
 
-// Only use file logging in NON-production
-if (!env.PRODUCTION) {
+// Only load file logging if NOT on Vercel
+if (!isVercel) {
   const DailyRotateFile = require("winston-daily-rotate-file");
 
   transports.push(
@@ -30,5 +31,3 @@ export const logger = winston.createLogger({
   ),
   transports,
 });
-
-export default { logger };
