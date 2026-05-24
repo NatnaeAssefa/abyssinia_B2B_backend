@@ -1,5 +1,6 @@
 import { Transaction } from "sequelize";
-import { Cart } from "../../models/MarketPlace";
+import { Cart, CartItem, Product, ProductImage } from "../../models/MarketPlace";
+import { CartItemDAL } from "../../dals/MarketPlace";
 import async from "async";
 import { createTransaction } from "../../utilities/database/sequelize";
 import {
@@ -343,6 +344,97 @@ class CartService {
     });
   };
 
+  /** Storefront: get or create cart for the authenticated user */
+  static getOrCreateForUser = (userId: string): Promise<Cart> => {
+    return CartDAL.findOne({ where: { user_id: userId } }).then((cart) => {
+      if (cart) return cart;
+      return CartDAL.create({ user_id: userId });
+    });
+  };
+
+  /** Storefront: cart with line items and product details */
+  static getWithItemsForUser = (userId: string): Promise<Cart & { items?: CartItem[] }> => {
+    return CartDAL.findOne({
+      where: { user_id: userId },
+      include: [
+        {
+          model: CartItem,
+          include: [
+            {
+              model: Product,
+              include: [{ model: ProductImage, as: "product_images", required: false }],
+            },
+          ],
+        },
+      ],
+    }).then(async (cart) => {
+      if (!cart) {
+        const created = await CartDAL.create({ user_id: userId });
+        const plain = created.toJSON() as Cart & { items?: CartItem[] };
+        plain.items = [];
+        return plain;
+      }
+      const json = cart.toJSON() as Cart & { cart_items?: CartItem[]; items?: CartItem[] };
+      json.items = json.cart_items ?? json.items ?? [];
+      return json;
+    });
+  };
+
+  /** Storefront: add or update a line item */
+  static addItemForUser = (
+    user: User,
+    productId: string,
+    quantity: string,
+    notes?: string | null
+  ): Promise<CartItem> => {
+    return new Promise((resolve, reject) => {
+      createTransaction()
+        .then(async (transaction) => {
+          try {
+            let cart = await CartDAL.findOne(
+              { where: { user_id: user.id } },
+              false
+            );
+            if (!cart) {
+              cart = await CartDAL.create({ user_id: user.id }, transaction);
+            }
+            const existing = await CartItemDAL.findOne(
+              {
+                where: { cart_id: cart.id, product_id: productId },
+              },
+              false
+            );
+            let item: CartItem;
+            if (existing) {
+              item = await CartItemDAL.update(
+                existing,
+                {
+                  quantity,
+                  notes: notes ?? existing.notes,
+                },
+                transaction
+              );
+            } else {
+              item = await CartItemDAL.create(
+                {
+                  cart_id: cart.id,
+                  product_id: productId,
+                  quantity,
+                  notes: notes ?? null,
+                },
+                transaction
+              );
+            }
+            await transaction.commit();
+            resolve(item);
+          } catch (error) {
+            await transaction.rollback();
+            reject(new InternalServerError(error as string));
+          }
+        })
+        .catch((error) => reject(new InternalServerError(error)));
+    });
+  };
 }
 
 export default CartService;

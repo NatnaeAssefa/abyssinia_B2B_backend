@@ -15,6 +15,11 @@ import { User } from "../../models/User";
 
 const ModelName = "ProductView";
 
+type ProductViewCreateInput = Pick<
+  ProductView,
+  "product_id" | "user_id" | "ip_address" | "user_agent" | "viewed_at"
+>;
+
 class ProductViewService {
   /**
    *
@@ -26,7 +31,7 @@ class ProductViewService {
    */
   static create = (
     user: User,
-    payload: Omit<ProductView, NullishPropertiesOf<ProductView>>
+    payload: ProductViewCreateInput
   ): Promise<ProductView> => {
     return new Promise((resolve, reject) => {
       async.waterfall(
@@ -49,13 +54,15 @@ class ProductViewService {
               );
           },
           (obj: any, result: any, done: Function) => {
-            ActionLogService.handleCreate({
-              action: LogActions.CREATE,
-              object: ModelName,
-              prev_data: {},
-              new_data: obj,
-              user_id: user.id,
-            });
+            if (user?.id) {
+              ActionLogService.handleCreate({
+                action: LogActions.CREATE,
+                object: ModelName,
+                prev_data: {},
+                new_data: obj,
+                user_id: user.id,
+              });
+            }
             done(null, result);
           },
         ],

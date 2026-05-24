@@ -91,6 +91,7 @@ const MarketPlaceModels = (sequelize: Sequelize) => {
   // Product - ProductImage
   Product.hasMany(ProductImage, {
     foreignKey: "product_id",
+    as: "product_images",
     onUpdate: "CASCADE",
     onDelete: "CASCADE",
   });
@@ -101,6 +102,7 @@ const MarketPlaceModels = (sequelize: Sequelize) => {
   // Product - ProductSpecification
   Product.hasMany(ProductSpecification, {
     foreignKey: "product_id",
+    as: "specifications",
     onUpdate: "CASCADE",
     onDelete: "CASCADE",
   });
@@ -111,6 +113,7 @@ const MarketPlaceModels = (sequelize: Sequelize) => {
   // Product - ProductIncoterm
   Product.hasMany(ProductIncoterm, {
     foreignKey: "product_id",
+    as: "incoterms",
     onUpdate: "CASCADE",
     onDelete: "CASCADE",
   });
@@ -121,6 +124,7 @@ const MarketPlaceModels = (sequelize: Sequelize) => {
   // Product - ProductTargetMarket
   Product.hasMany(ProductTargetMarket, {
     foreignKey: "product_id",
+    as: "target_markets",
     onUpdate: "CASCADE",
     onDelete: "CASCADE",
   });
@@ -131,6 +135,7 @@ const MarketPlaceModels = (sequelize: Sequelize) => {
   // Product - ProductUseCase
   Product.hasMany(ProductUseCase, {
     foreignKey: "product_id",
+    as: "use_cases",
     onUpdate: "CASCADE",
     onDelete: "CASCADE",
   });

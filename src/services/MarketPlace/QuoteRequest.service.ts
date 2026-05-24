@@ -49,13 +49,15 @@ class QuoteRequestService {
               );
           },
           (obj: any, result: any, done: Function) => {
-            ActionLogService.handleCreate({
-              action: LogActions.CREATE,
-              object: ModelName,
-              prev_data: {},
-              new_data: obj,
-              user_id: user.id,
-            });
+            if (user?.id) {
+              ActionLogService.handleCreate({
+                action: LogActions.CREATE,
+                object: ModelName,
+                prev_data: {},
+                new_data: obj,
+                user_id: user.id,
+              });
+            }
             done(null, result);
           },
         ],

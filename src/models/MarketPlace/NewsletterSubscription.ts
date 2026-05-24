@@ -6,7 +6,7 @@ export class NewsletterSubscription extends Model {
   public is_active!: boolean;
   public subscribed_at!: Date;
   public unsubscribed_at!: Date | null;
-  public source!: string | null;
+  public source!: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }

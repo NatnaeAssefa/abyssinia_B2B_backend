@@ -27,6 +27,8 @@ const routes = () => {
    *       200:
    *         description: Success
    */
+  router.get("/slug/:slug", BlogPostController.findBySlug);
+
   router.get(
     "/get",
     // AuthenticateUser,

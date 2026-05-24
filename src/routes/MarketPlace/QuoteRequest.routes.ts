@@ -1,7 +1,7 @@
 import express from "express";
 import { QuoteRequestController } from "../../controllers/MarketPlace";
 
-import { AuthenticateUser, AuthorizeAccess } from "../../middleware/Auth/Auth";
+import { AuthenticateUser, AuthenticatePossibleUser } from "../../middleware/Auth/Auth";
 
 const routes = () => {
   /**
@@ -97,11 +97,7 @@ const routes = () => {
    *       201:
    *         description: Success
    */
-  router.post(
-    "/",
-    AuthenticateUser,
-    QuoteRequestController.create
-  );
+  router.post("/", AuthenticatePossibleUser, QuoteRequestController.create);
 
   /**
    * @swagger

@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { CartItemService } from "../../services/MarketPlace";
+import { CartItemService, CartService } from "../../services/MarketPlace";
 import ServerResponse from "../../utilities/response/Response";
 import { ParseQuery } from "../../utilities/pagination/Pagination";
 import Joi from "joi";
@@ -111,12 +111,10 @@ class CartItemController {
   static create(request: any, response: Response) {
     const startTime = new Date();
     const schema = Joi.object({
-      name: Joi.string().required().trim(),
-      group: Joi.string().trim(),
-      description: Joi.string().trim(),
-      type: Joi.string()
-        .valid(...Object.values(UserType))
-        .required(),
+      product_id: Joi.string().guid().required(),
+      quantity: Joi.string().required(),
+      notes: Joi.string().trim().allow(null, ""),
+      cart_id: Joi.string().guid().optional(),
     });
 
     const { error } = schema.validate(request.body, { abortEarly: false });
@@ -124,7 +122,12 @@ class CartItemController {
     if (!error) {
       const data: any = request.body;
       const user: User = request.user;
-      CartItemService.create(user, data)
+      CartService.addItemForUser(
+        user,
+        data.product_id,
+        data.quantity,
+        data.notes
+      )
         .then((result) => {
           ServerResponse(request, response, 201, result, "Success", startTime);
         })

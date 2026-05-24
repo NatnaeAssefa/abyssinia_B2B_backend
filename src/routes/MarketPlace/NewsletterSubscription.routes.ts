@@ -94,12 +94,7 @@ const routes = () => {
    *       201:
    *         description: Success
    */
-  router.post(
-    "/",
-    AuthenticateUser,
-    AuthorizeAccess(["write_action_log"]),
-    NewsletterSubscriptionController.create
-  );
+  router.post("/", NewsletterSubscriptionController.create);
 
   /**
    * @swagger

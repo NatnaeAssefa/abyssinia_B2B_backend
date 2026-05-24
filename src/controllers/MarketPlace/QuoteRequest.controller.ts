@@ -107,28 +107,29 @@ class QuoteRequestController {
     const startTime = new Date();
 
     const schema = Joi.object({
-      bio: Joi.string().trim(),
-      website_url: Joi.string().uri(),
-      social_media_links: Joi.array().items(Joi.string().uri()),
-      address: Joi.string().trim(),
-      city: Joi.string().trim(),
-      country: Joi.string().trim(),
-      date_of_birth: Joi.date().iso(),
-      gender: Joi.string().valid(...Object.values(Gender)),
-      time_zone: Joi.string().trim(),
-      preferred_contact_method: Joi.string().trim().valid(...Object.values(PREFERRED_CONTACT_METHOD)),
-      is_active: Joi.boolean().default(true),
-      last_activity_time: Joi.date().iso(),
-      user_id: Joi.string().guid().required(),
-      file_id: Joi.string().guid(), // Assuming file_id is optional
+      product_id: Joi.string().guid().required(),
+      quantity: Joi.string().required(),
+      packaging: Joi.string().trim().allow(null, ""),
+      destination: Joi.string().trim().allow(null, ""),
+      incoterm: Joi.string().trim().allow(null, ""),
+      name: Joi.string().trim().allow(null, ""),
+      email: Joi.string().email().required(),
+      company: Joi.string().trim().allow(null, ""),
+      phone: Joi.string().trim().allow(null, ""),
+      notes: Joi.string().trim().allow(null, ""),
     });
 
     const { error } = schema.validate(request.body, { abortEarly: false });
 
     if (!error) {
       const data: any = request.body;
-      const user: User = request.user;
-      QuoteRequestService.create(user, data)
+      const user: User | undefined = request.user;
+      const payload = {
+        ...data,
+        user_id: user?.id ?? null,
+        status: "PENDING",
+      };
+      QuoteRequestService.create((user ?? {}) as User, payload)
         .then((result) => {
           ServerResponse(request, response, 201, result, "Success", startTime);
         })

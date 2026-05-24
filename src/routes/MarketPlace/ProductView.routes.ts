@@ -1,7 +1,7 @@
 import express from "express";
 import { ProductViewController } from "../../controllers/MarketPlace";
 
-import { AuthenticateUser, AuthorizeAccess } from "../../middleware/Auth/Auth";
+import { AuthenticateUser, AuthenticatePossibleUser } from "../../middleware/Auth/Auth";
 
 const routes = () => {
   /**
@@ -92,11 +92,7 @@ const routes = () => {
    *       201:
    *         description: Success
    */
-  router.post(
-    "/",
-    AuthenticateUser,
-    ProductViewController.create
-  );
+  router.post("/", AuthenticatePossibleUser, ProductViewController.create);
 
   /**
    * @swagger

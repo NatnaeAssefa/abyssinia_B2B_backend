@@ -6,6 +6,8 @@ import Joi from "joi";
 import { User } from "../../models/User";
 import { AccessType, UserType } from "../../utilities/constants/Constants";
 import { Op } from "sequelize";
+import { NullishPropertiesOf } from "sequelize/types/utils";
+import { ProductView } from "../../models/MarketPlace";
 
 const ModelName = "ProductView";
 
@@ -131,24 +133,22 @@ class ProductViewController {
   static create(request: any, response: Response) {
     const startTime = new Date();
     const schema = Joi.object({
-      name: Joi.string().required().trim(),
-      description: Joi.string().trim(),
-      type: Joi.string()
-        .valid(...Object.values(AccessType))
-        .required(),
-      access_rules: Joi.any().required(),
-      company_id: Joi.alternatives().conditional("type", {
-        is: AccessType.SUPER_ADMIN,
-        then: Joi.string().required(),
-      }),
+      product_id: Joi.string().guid().required(),
     });
 
     const { error } = schema.validate(request.body, { abortEarly: false });
 
     if (!error) {
       const data: any = request.body;
-      const user: User = request.user;
-      ProductViewService.create(user, data)
+      const user: User | undefined = request.user;
+      const payload: any = {
+        product_id: data.product_id,
+        user_id: user?.id ?? null,
+        ip_address: request.ip ?? null,
+        user_agent: request.headers["user-agent"] ?? null,
+        viewed_at: new Date(),
+      };
+      ProductViewService.create((user ?? {}) as User, payload)
         .then((result) => {
           ServerResponse(request, response, 201, result, "Success", startTime);
         })

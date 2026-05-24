@@ -15,6 +15,11 @@ import { User } from "../../models/User";
 
 const ModelName = "NewsletterSubscription";
 
+type NewsletterSubscriptionCreateInput = Pick<
+  NewsletterSubscription,
+  "email" | "source" | "is_active" | "subscribed_at"
+>;
+
 class NewsletterSubscriptionService {
   /**
    *
@@ -26,7 +31,7 @@ class NewsletterSubscriptionService {
    */
   static create = (
     user: User,
-    payload: Omit<NewsletterSubscription, NullishPropertiesOf<NewsletterSubscription>>
+    payload: NewsletterSubscriptionCreateInput
   ): Promise<NewsletterSubscription> => {
     return new Promise((resolve, reject) => {
       async.waterfall(
@@ -49,13 +54,15 @@ class NewsletterSubscriptionService {
               );
           },
           (obj: any, result: any, done: Function) => {
-            ActionLogService.handleCreate({
-              action: LogActions.CREATE,
-              object: ModelName,
-              prev_data: {},
-              new_data: obj,
-              user_id: user.id,
-            });
+            if (user?.id) {
+              ActionLogService.handleCreate({
+                action: LogActions.CREATE,
+                object: ModelName,
+                prev_data: {},
+                new_data: obj,
+                user_id: user.id,
+              });
+            }
             done(null, result);
           },
         ],

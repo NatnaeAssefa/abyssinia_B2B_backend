@@ -100,20 +100,20 @@ class NewsletterSubscriptionController {
   static create(request: any, response: Response) {
     const startTime = new Date();
     const schema = Joi.object({
-      action: Joi.string().required().trim(),
-      object: Joi.string().required().trim(),
-      description: Joi.string().trim(),
-      prev_data: Joi.any().required(),
-      new_data: Joi.any().required(),
+      email: Joi.string().email().required(),
+      source: Joi.string().trim().allow(null, ""),
     });
 
     const { error } = schema.validate(request.body, { abortEarly: false });
 
     if (!error) {
       const data: any = request.body;
-      const user: User = request.user;
-      NewsletterSubscriptionService.create(user, {
-        ...data,
+      const user: User | undefined = request.user;
+      NewsletterSubscriptionService.create((user ?? {}) as User, {
+        email: data.email.toLowerCase(),
+        source: data.source ?? "website",
+        is_active: true,
+        subscribed_at: new Date(),
       })
         .then((result) => {
           ServerResponse(request, response, 201, result, "Success", startTime);
