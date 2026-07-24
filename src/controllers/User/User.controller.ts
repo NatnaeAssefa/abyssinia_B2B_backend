@@ -18,8 +18,8 @@ import { Role, User } from "../../models/User";
 import { constants, env } from "../../config";
 import LogService from "../../services/Log/Log.service";
 import { Op } from "sequelize";
-import { isValid } from "date-fns/isValid";
-import { parse } from "date-fns/parse";
+import { isValid } from "date-fns";
+import { parse } from "date-fns";
 import { UserDAL } from "../../dals/User";
 import { Cart } from "../../models/MarketPlace";
 
