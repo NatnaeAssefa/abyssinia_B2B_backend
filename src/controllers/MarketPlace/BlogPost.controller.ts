@@ -111,12 +111,67 @@ class BlogPostController {
   static create(request: any, response: Response) {
     const startTime = new Date();
     const schema = Joi.object({
-      name: Joi.string().required().trim(),
-      group: Joi.string().trim(),
-      description: Joi.string().trim(),
-      type: Joi.string()
-        .valid(...Object.values(UserType))
+      title: Joi.string()
+        .min(3)
+        .max(255)
+        .required()
+        .trim(),
+
+      slug: Joi.string()
+        .pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+        .required()
+        .trim(),
+
+      excerpt: Joi.string()
+        .allow(null, "")
+        .trim(),
+
+      content: Joi.string()
+        .min(10)
         .required(),
+
+      featured_image: Joi.string()
+        .uri()
+        .allow(null, ""),
+
+      author_name: Joi.string()
+        .min(2)
+        .max(255)
+        .required()
+        .trim(),
+
+      author_email: Joi.string()
+        .email()
+        .allow(null, ""),
+
+      category: Joi.string()
+        .max(100)
+        .allow(null, "")
+        .trim(),
+
+      tags: Joi.array()
+        .items(Joi.string().trim())
+        .default([]),
+
+      is_published: Joi.boolean()
+        .default(false),
+
+      published_at: Joi.date()
+        .allow(null),
+
+      meta_title: Joi.string()
+        .max(255)
+        .allow(null, "")
+        .trim(),
+
+      meta_description: Joi.string()
+        .allow(null, "")
+        .trim(),
+
+      view_count: Joi.number()
+        .integer()
+        .min(0)
+        .default(0),
     });
 
     const { error } = schema.validate(request.body, { abortEarly: false });
@@ -154,9 +209,67 @@ class BlogPostController {
     const startTime = new Date();
     const schema = Joi.object({
       id: Joi.string().guid().required(),
-      name: Joi.string().trim(),
-      group: Joi.string().trim(),
-      description: Joi.string().trim(),
+      title: Joi.string()
+        .min(3)
+        .max(255)
+        .required()
+        .trim(),
+
+      slug: Joi.string()
+        .pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+        .required()
+        .trim(),
+
+      excerpt: Joi.string()
+        .allow(null, "")
+        .trim(),
+
+      content: Joi.string()
+        .min(10)
+        .required(),
+
+      featured_image: Joi.string()
+        .uri()
+        .allow(null, ""),
+
+      author_name: Joi.string()
+        .min(2)
+        .max(255)
+        .required()
+        .trim(),
+
+      author_email: Joi.string()
+        .email()
+        .allow(null, ""),
+
+      category: Joi.string()
+        .max(100)
+        .allow(null, "")
+        .trim(),
+
+      tags: Joi.array()
+        .items(Joi.string().trim())
+        .default([]),
+
+      is_published: Joi.boolean()
+        .default(false),
+
+      published_at: Joi.date()
+        .allow(null),
+
+      meta_title: Joi.string()
+        .max(255)
+        .allow(null, "")
+        .trim(),
+
+      meta_description: Joi.string()
+        .allow(null, "")
+        .trim(),
+
+      view_count: Joi.number()
+        .integer()
+        .min(0)
+        .default(0),
     });
 
     const { error } = schema.validate(request.body, { abortEarly: false });

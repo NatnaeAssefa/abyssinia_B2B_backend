@@ -4,13 +4,84 @@ import ServerResponse from "../../utilities/response/Response";
 import { ParseQuery } from "../../utilities/pagination/Pagination";
 import Joi from "joi";
 import { User } from "../../models/User";
+import {
+  Category,
+  Subcategory,
+  Supplier,
+  ProductImage,
+  ProductSpecification,
+  ProductIncoterm,
+  ProductTargetMarket,
+  ProductUseCase,
+} from "../../models/MarketPlace";
 
 const ModelName = "Product";
+
+/** Include every related model to Product for findMany/findById */
+const productIncludes = [
+  { model: Category },
+  { model: Subcategory },
+  { model: Supplier },
+  { model: ProductImage },
+  { model: ProductSpecification },
+  { model: ProductIncoterm },
+  { model: ProductTargetMarket },
+  { model: ProductUseCase },
+];
+
+/** Merge common flat query params (e.g. ?category_id=...&limit=50) into Sequelize options */
+const applyFlatProductFilters = (parsedQuery: any, requestQuery: Record<string, unknown>) => {
+  const where: Record<string, unknown> = { ...(parsedQuery.query.where || {}) };
+
+  if (requestQuery.category_id) {
+    where.category_id = requestQuery.category_id;
+  }
+  if (requestQuery.subcategory_id) {
+    where.subcategory_id = requestQuery.subcategory_id;
+  }
+  if (requestQuery.supplier_id) {
+    where.supplier_id = requestQuery.supplier_id;
+  }
+  if (requestQuery.is_active !== undefined) {
+    where.is_active =
+      requestQuery.is_active === "true" || requestQuery.is_active === true;
+  }
+  if (requestQuery.is_featured !== undefined) {
+    where.is_featured =
+      requestQuery.is_featured === "true" || requestQuery.is_featured === true;
+  }
+  if (requestQuery.in_stock !== undefined) {
+    where.in_stock =
+      requestQuery.in_stock === "true" || requestQuery.in_stock === true;
+  }
+
+  if (Object.keys(where).length > 0) {
+    parsedQuery.query.where = where;
+  }
+
+  if (requestQuery.limit !== undefined) {
+    const limit = parseInt(String(requestQuery.limit), 10);
+    if (!isNaN(limit) && limit > 0) {
+      parsedQuery.query.limit = Math.min(limit, 100);
+    }
+  }
+  if (requestQuery.offset !== undefined) {
+    const offset = parseInt(String(requestQuery.offset), 10);
+    if (!isNaN(offset) && offset >= 0) {
+      parsedQuery.query.offset = offset;
+    }
+  }
+};
 
 class ProductController {
   static findMany(request: Request, response: Response) {
     const startTime = new Date();
     const parsedQuery: any = ParseQuery(request.query);
+    applyFlatProductFilters(parsedQuery, request.query as Record<string, unknown>);
+    parsedQuery.query.include = [
+      ...(parsedQuery.query.include || []),
+      ...productIncludes,
+    ];
 
     ProductService.findMany(parsedQuery.query, parsedQuery.paranoid)
       .then((result) => {
@@ -59,6 +130,10 @@ class ProductController {
     if (!error) {
       const id: string = request.params.id;
       const parsedQuery: any = ParseQuery(request.query, ["I", "P"]);
+      parsedQuery.query.include = [
+        ...(parsedQuery.query.include || []),
+        ...productIncludes,
+      ];
       ProductService.findById(id, parsedQuery.query, parsedQuery.paranoid)
         .then((result) => {
           if (result) {

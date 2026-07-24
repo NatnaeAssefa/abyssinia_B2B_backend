@@ -4,6 +4,7 @@ import blogPostRoutes from "./BlogPost.routes";
 import cartRoutes from "./Cart.routes";
 import cartItemRoutes from "./CartItem.routes";
 import categoryRoutes from "./Category.routes";
+import contactRoutes from "./Contact.routes";
 import newsletterSubscriptionRoutes from "./NewsletterSubscription.routes";
 import productRoutes from "./Product.routes";
 import productImageRoutes from "./ProductImage.routes";
@@ -25,6 +26,7 @@ const routes = () => {
   router.use("/cart", cartRoutes());
   router.use("/cart-item", cartItemRoutes());
   router.use("/category", categoryRoutes());
+  router.use("/contact", contactRoutes());
   router.use("/newsletter-subscription", newsletterSubscriptionRoutes());
   router.use("/product", productRoutes());
   router.use("/product-image", productImageRoutes());

@@ -5,6 +5,7 @@ import { ParseQuery } from "../../utilities/pagination/Pagination";
 import Joi from "joi";
 import { User } from "../../models/User";
 import { UserType } from "../../utilities/constants/Constants";
+import { AddressType } from "../../models/MarketPlace/Address";
 
 const ModelName = "Address";
 
@@ -111,12 +112,42 @@ class AddressController {
   static create(request: any, response: Response) {
     const startTime = new Date();
     const schema = Joi.object({
-      name: Joi.string().required().trim(),
-      group: Joi.string().trim(),
-      description: Joi.string().trim(),
+      user_id: Joi.string().guid().required(),
+
       type: Joi.string()
-        .valid(...Object.values(UserType))
-        .required(),
+        .valid(...Object.values(AddressType))
+        .default(AddressType.BILLING),
+
+      street: Joi.string()
+        .min(2)
+        .max(255)
+        .required()
+        .trim(),
+
+      city: Joi.string()
+        .min(2)
+        .max(100)
+        .required()
+        .trim(),
+
+      state: Joi.string()
+        .max(100)
+        .allow(null, "")
+        .trim(),
+
+      country: Joi.string()
+        .min(2)
+        .max(100)
+        .required()
+        .trim(),
+
+      postal_code: Joi.string()
+        .max(20)
+        .allow(null, "")
+        .trim(),
+
+      is_default: Joi.boolean()
+        .default(false),
     });
 
     const { error } = schema.validate(request.body, { abortEarly: false });
@@ -154,10 +185,43 @@ class AddressController {
     const startTime = new Date();
     const schema = Joi.object({
       id: Joi.string().guid().required(),
-      name: Joi.string().trim(),
-      group: Joi.string().trim(),
-      description: Joi.string().trim(),
-    });
+      user_id: Joi.string().guid().required(),
+
+      type: Joi.string()
+        .valid(...Object.values(AddressType))
+        .default(AddressType.BILLING),
+
+      street: Joi.string()
+        .min(2)
+        .max(255)
+        .required()
+        .trim(),
+
+      city: Joi.string()
+        .min(2)
+        .max(100)
+        .required()
+        .trim(),
+
+      state: Joi.string()
+        .max(100)
+        .allow(null, "")
+        .trim(),
+
+      country: Joi.string()
+        .min(2)
+        .max(100)
+        .required()
+        .trim(),
+
+      postal_code: Joi.string()
+        .max(20)
+        .allow(null, "")
+        .trim(),
+
+      is_default: Joi.boolean()
+        .default(false),
+    }).min(2);
 
     const { error } = schema.validate(request.body, { abortEarly: false });
 

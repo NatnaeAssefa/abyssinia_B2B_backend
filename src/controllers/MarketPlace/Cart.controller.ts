@@ -111,12 +111,7 @@ class CartController {
   static create(request: any, response: Response) {
     const startTime = new Date();
     const schema = Joi.object({
-      name: Joi.string().required().trim(),
-      group: Joi.string().trim(),
-      description: Joi.string().trim(),
-      type: Joi.string()
-        .valid(...Object.values(UserType))
-        .required(),
+      user_id: Joi.string().guid().required(),
     });
 
     const { error } = schema.validate(request.body, { abortEarly: false });
@@ -154,9 +149,7 @@ class CartController {
     const startTime = new Date();
     const schema = Joi.object({
       id: Joi.string().guid().required(),
-      name: Joi.string().trim(),
-      group: Joi.string().trim(),
-      description: Joi.string().trim(),
+      user_id: Joi.string().guid().required(),
     });
 
     const { error } = schema.validate(request.body, { abortEarly: false });

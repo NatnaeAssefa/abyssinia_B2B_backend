@@ -50,10 +50,12 @@ export const env: any = {
   RECOVERY_EXPIRY: process.env.RECOVERY_EXPIRY || 24, // Hours
 
   // Company
-  COMPANY_NAME: process.env.COMPANY_NAME || "Read-Sea AI",
-  COMPANY_EMAIL: process.env.SMTP_USER || "support@Read-Sea.ai",
+  COMPANY_NAME: process.env.COMPANY_NAME || "Abyssinia B2B",
+  COMPANY_EMAIL: process.env.COMPANY_EMAIL || process.env.SMTP_USER || "info@abyssiniab2b.com",
 
-  ADMIN_EMAIL: process.env.ADMIN_EMAIL || "admin@Read-Sea.ai",
+  ADMIN_EMAIL: process.env.ADMIN_EMAIL || "admin@abyssiniab2b.com",
+  INFO_EMAIL: process.env.INFO_EMAIL || "info@abyssiniab2b.com",
+  SALES_EMAIL: process.env.SALES_EMAIL || "sales@abyssiniab2b.com",
 
   ROOT_DIR: "",
 

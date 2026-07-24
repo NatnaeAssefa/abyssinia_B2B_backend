@@ -11,7 +11,7 @@ const ModelName = "CartItem";
 class CartItemController {
   static findMany(request: any, response: Response) {
     const startTime = new Date();
-    let parsedQuery: any = ParseQuery(request.query);
+    const parsedQuery: any = ParseQuery(request.query);
 
     CartItemService.findMany(
       parsedQuery.query,
@@ -34,7 +34,7 @@ class CartItemController {
 
   static findOne(request: any, response: Response) {
     const startTime = new Date();
-    let parsedQuery: any = ParseQuery(request.query, ["F", "I", "O", "P"]);
+    const parsedQuery: any = ParseQuery(request.query, ["F", "I", "O", "P"]);
 
     CartItemService.findOne(
       parsedQuery.query,
@@ -64,8 +64,8 @@ class CartItemController {
     const { error } = schema.validate(request.params);
 
     if (!error) {
-      let id: string = request.params.id;
-      let parsedQuery: any = ParseQuery(request.query, ["I", "P"]);
+      const id: string = request.params.id;
+      const parsedQuery: any = ParseQuery(request.query, ["I", "P"]);
       CartItemService.findById(
         id,
         parsedQuery.query,

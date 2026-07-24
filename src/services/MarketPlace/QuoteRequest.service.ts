@@ -25,7 +25,7 @@ class QuoteRequestService {
    * @memberof QuoteRequestService
    */
   static create = (
-    user: User,
+    user: User | null,
     payload: Omit<QuoteRequest, NullishPropertiesOf<QuoteRequest>>
   ): Promise<QuoteRequest> => {
     return new Promise((resolve, reject) => {
@@ -37,6 +37,7 @@ class QuoteRequestService {
               .catch((error) => reject(new InternalServerError(error)));
           },
           (transaction: Transaction, done: Function) => {
+            console.log(payload);
             QuoteRequestDAL.create(payload, transaction)
               .then((result) => {
                 done(null, result, { obj: result, transaction: transaction });
@@ -49,13 +50,15 @@ class QuoteRequestService {
               );
           },
           (obj: any, result: any, done: Function) => {
-            ActionLogService.handleCreate({
-              action: LogActions.CREATE,
-              object: ModelName,
-              prev_data: {},
-              new_data: obj,
-              user_id: user.id,
-            });
+            if (user?.id) {
+              ActionLogService.handleCreate({
+                action: LogActions.CREATE,
+                object: ModelName,
+                prev_data: {},
+                new_data: obj,
+                user_id: user.id,
+              });
+            }
             done(null, result);
           },
         ],

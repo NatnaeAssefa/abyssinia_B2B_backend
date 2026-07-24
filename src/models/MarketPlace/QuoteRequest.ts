@@ -12,11 +12,17 @@ export enum QuoteStatus {
 export class QuoteRequest extends Model {
   public id!: string;
   public product_id!: string;
+  public product_name!: string;
   public user_id!: string | null;
   public quantity!: string;
   public packaging!: string | null;
   public destination!: string | null;
   public incoterm!: string | null;
+  public payment_term!: string | null;
+  public target_country!: string | null;
+  public destination_port!: string | null;
+  public shipping_method!: string | null;
+  public lead_time!: string | null;
   public name!: string | null;
   public email!: string;
   public company!: string | null;
@@ -38,7 +44,7 @@ export default (sequelize: Sequelize) => {
       },
       product_id: {
         type: DataTypes.UUID,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: "products",
           key: "id",
@@ -56,6 +62,10 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      product_name: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       packaging: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -65,6 +75,26 @@ export default (sequelize: Sequelize) => {
         allowNull: true,
       },
       incoterm: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      payment_term: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      target_country: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      destination_port: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      shipping_method: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      lead_time: {
         type: DataTypes.STRING,
         allowNull: true,
       },

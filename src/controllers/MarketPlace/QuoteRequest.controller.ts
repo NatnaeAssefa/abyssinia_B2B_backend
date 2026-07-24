@@ -4,10 +4,35 @@ import ServerResponse from "../../utilities/response/Response";
 import { ParseQuery } from "../../utilities/pagination/Pagination";
 import Joi from "joi";
 import { User } from "../../models/User";
-import { AccessType, Gender, PREFERRED_CONTACT_METHOD, UserType } from "../../utilities/constants/Constants";
-
+import { Product } from "../../models/MarketPlace";
+import { EmailService } from "../../utilities/email/Email";
+import { env } from "../../config";
+import { QuoteStatus } from "../../models/MarketPlace/QuoteRequest";
 
 const ModelName = "QuoteRequest";
+
+const INCOTERMS = [
+  "FOB",
+  "EXW",
+  "FCA",
+  "FAS",
+  "CFR",
+  "CIF",
+  "CPT",
+  "CIP",
+  "DAT",
+  "DDP",
+  "Negotiable",
+];
+
+const PAYMENT_TERMS = ["T/T", "L/C", "D/P", "W/U", "Negotiable"];
+
+const SHIPPING_METHODS = [
+  "Sea Freight",
+  "Air Freight",
+  "Land Freight",
+  "Express",
+];
 
 class QuoteRequestController {
   static findMany(request: any, response: Response) {
@@ -107,29 +132,75 @@ class QuoteRequestController {
     const startTime = new Date();
 
     const schema = Joi.object({
-      bio: Joi.string().trim(),
-      website_url: Joi.string().uri(),
-      social_media_links: Joi.array().items(Joi.string().uri()),
-      address: Joi.string().trim(),
-      city: Joi.string().trim(),
-      country: Joi.string().trim(),
-      date_of_birth: Joi.date().iso(),
-      gender: Joi.string().valid(...Object.values(Gender)),
-      time_zone: Joi.string().trim(),
-      preferred_contact_method: Joi.string().trim().valid(...Object.values(PREFERRED_CONTACT_METHOD)),
-      is_active: Joi.boolean().default(true),
-      last_activity_time: Joi.date().iso(),
-      user_id: Joi.string().guid().required(),
-      file_id: Joi.string().guid(), // Assuming file_id is optional
+      product_id: Joi.string().guid().optional(),
+      product_name: Joi.string().trim().allow("", null).max(200),
+      quantity: Joi.string().trim().required().max(100),
+      packaging: Joi.string().trim().allow("", null).max(100),
+      destination: Joi.string().trim().allow("", null).max(200),
+      incoterm: Joi.string().trim().required().max(50),
+      payment_term: Joi.string()
+        .trim()
+        .valid(...PAYMENT_TERMS)
+        .required(),
+      target_country: Joi.string().trim().required().max(150),
+      destination_port: Joi.string().trim().required().max(200),
+      shipping_method: Joi.string()
+        .trim()
+        .valid(...SHIPPING_METHODS)
+        .required(),
+      lead_time: Joi.string().trim().required().max(150),
+      name: Joi.string().trim().allow("", null).max(200),
+      email: Joi.string().email().required().max(200),
+      company: Joi.string().trim().allow("", null).max(200),
+      phone: Joi.string().trim().allow("", null).max(50),
+      notes: Joi.string().trim().allow("", null).max(5000),
+      status: Joi.string().valid(...Object.values(QuoteStatus)),
     });
 
-    const { error } = schema.validate(request.body, { abortEarly: false });
+    const { error, value } = schema.validate(request.body, { abortEarly: false });
 
     if (!error) {
-      const data: any = request.body;
-      const user: User = request.user;
-      QuoteRequestService.create(user, data)
-        .then((result) => {
+      const user: User | undefined = request.user;
+      const data: any = {
+        ...value,
+        user_id: user?.id || null,
+        destination: value.target_country || value.destination || null,
+      };
+
+      QuoteRequestService.create(user || null, data)
+        .then(async (result) => {
+          try {
+            let productName = value.product_name;
+            const product = await Product.findByPk(value.product_id);
+            if (product) {
+              productName = (product as any).name || productName;
+            }
+
+            await EmailService.getInstance().sendToTeam({
+              subject: `[RFQ / Sourcing] ${productName} — ${value.company || value.name || value.email}`,
+              html: EmailService.quoteSourcingEmail({
+                product_name: productName,
+                quantity: value.quantity,
+                packaging: value.packaging,
+                incoterm: value.incoterm,
+                payment_term: value.payment_term,
+                target_country: value.target_country,
+                destination_port: value.destination_port,
+                shipping_method: value.shipping_method,
+                lead_time: value.lead_time,
+                name: value.name,
+                email: value.email,
+                company: value.company,
+                phone: value.phone,
+                notes: value.notes,
+              }),
+              replyTo: value.email,
+              from: env.COMPANY_EMAIL,
+            });
+          } catch (emailError) {
+            console.error("Quote saved but email failed:", emailError);
+          }
+
           ServerResponse(request, response, 201, result, "Success", startTime);
         })
         .catch((error) => {
@@ -158,20 +229,31 @@ class QuoteRequestController {
     const startTime = new Date();
     const schema = Joi.object({
       id: Joi.string().guid().required(),
-      bio: Joi.string().trim(),
-      website_url: Joi.string().uri(),
-      social_media_links: Joi.array().items(Joi.string().uri()),
-      address: Joi.string().trim(),
-      city: Joi.string().trim(),
-      country: Joi.string().trim(),
-      date_of_birth: Joi.date().iso(),
-      gender: Joi.string().valid(...Object.values(Gender)),
-      time_zone: Joi.string().trim(),
-      preferred_contact_method: Joi.string().trim().valid(...Object.values(PREFERRED_CONTACT_METHOD)),
-      is_active: Joi.boolean().default(true),
-      last_activity_time: Joi.date().iso(),
-      user_id: Joi.string().guid(),
-      file_id: Joi.string().guid(), // Assuming file_id is optional
+      product_id: Joi.string().guid(),
+      quantity: Joi.string().trim().max(100),
+      packaging: Joi.string().trim().allow("", null).max(100),
+      destination: Joi.string().trim().allow("", null).max(200),
+      incoterm: Joi.string()
+        .trim()
+        .valid(...INCOTERMS)
+        .allow("", null),
+      payment_term: Joi.string()
+        .trim()
+        .valid(...PAYMENT_TERMS)
+        .allow("", null),
+      target_country: Joi.string().trim().allow("", null).max(150),
+      destination_port: Joi.string().trim().allow("", null).max(200),
+      shipping_method: Joi.string()
+        .trim()
+        .valid(...SHIPPING_METHODS)
+        .allow("", null),
+      lead_time: Joi.string().trim().allow("", null).max(150),
+      name: Joi.string().trim().allow("", null).max(200),
+      email: Joi.string().email().max(200),
+      company: Joi.string().trim().allow("", null).max(200),
+      phone: Joi.string().trim().allow("", null).max(50),
+      notes: Joi.string().trim().allow("", null).max(5000),
+      status: Joi.string().valid(...Object.values(QuoteStatus)),
     });
 
     const { error } = schema.validate(request.body, { abortEarly: false });
