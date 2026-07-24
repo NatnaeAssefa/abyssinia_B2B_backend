@@ -19,8 +19,6 @@ export default () => {
         LogService.LogError(`Database connection error: ${error}`);
         reject(false);
       });
-
-    resolve(true);
   });
 };
 

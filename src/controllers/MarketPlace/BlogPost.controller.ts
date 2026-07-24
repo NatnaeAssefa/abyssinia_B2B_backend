@@ -55,6 +55,43 @@ class BlogPostController {
       });
   }
 
+  static findBySlug(request: any, response: Response) {
+    const startTime = new Date();
+    const slug = request.params.slug;
+    const parsedQuery: any = ParseQuery(request.query, ["I", "P"]);
+    BlogPostService.findOne(
+      {
+        ...parsedQuery.query,
+        where: { ...(parsedQuery.query?.where || {}), slug },
+      },
+      parsedQuery.paranoid
+    )
+      .then((result) => {
+        if (result) {
+          ServerResponse(request, response, 200, result, "", startTime);
+        } else {
+          ServerResponse(
+            request,
+            response,
+            404,
+            null,
+            `${ModelName} Not Found`,
+            startTime
+          );
+        }
+      })
+      .catch((error) => {
+        ServerResponse(
+          request,
+          response,
+          error.statusCode,
+          error.payload,
+          "Error",
+          startTime
+        );
+      });
+  }
+
   static findById(request: any, response: Response) {
     const startTime = new Date();
     const schema = Joi.object({

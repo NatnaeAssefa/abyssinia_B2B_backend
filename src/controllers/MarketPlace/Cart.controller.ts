@@ -223,6 +223,25 @@ class CartController {
     }
   }
 
+  static getMyCart(request: any, response: Response) {
+    const startTime = new Date();
+    const user: User = request.user;
+    CartService.getWithItemsForUser(user.id)
+      .then((result) => {
+        ServerResponse(request, response, 200, result, "Success", startTime);
+      })
+      .catch((error) => {
+        ServerResponse(
+          request,
+          response,
+          error.statusCode ?? 500,
+          error.payload ?? error,
+          "Error",
+          startTime
+        );
+      });
+  }
+
   static restore(request: any, response: Response) {
     const startTime = new Date();
     const schema = Joi.object({

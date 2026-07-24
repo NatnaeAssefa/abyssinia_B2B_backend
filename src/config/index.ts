@@ -1,4 +1,7 @@
 import { AccessType, UserType } from "../utilities/constants/Constants";
+import dotenv from "dotenv";
+
+dotenv.config({ path: "./.env" });
 
 export const DB_TYPES = {
   MYSQL: "mysql",
@@ -15,11 +18,11 @@ const getDBType = (type?: string) => {
 export const env: any = {
   // Database
   DB_TYPE: getDBType(process.env.DB_TYPE),
-  DB_HOST: process.env.DB_HOST || "localhost",
+  DB_HOST: process.env.DB_HOST || "database-1.c9qkeooek2sp.eu-north-1.rds.amazonaws.com",
   DB_PORT: process.env.DB_PORT || "5432",
-  DB_NAME: process.env.DB_NAME || "abyssiniab2b",
+  DB_NAME: process.env.DB_NAME || "abyssinia",
   DB_USERNAME: process.env.DB_USERNAME || "postgres",
-  DB_PASSWORD: process.env.DB_PASSWORD || "root",
+  DB_PASSWORD: process.env.DB_PASSWORD || "jehoaddan6",
 
   // Redis
   REDIS_HOST: process.env.REDIS_HOST || "localhost",
@@ -66,8 +69,8 @@ export const env: any = {
   GOOGLE_TOKEN_URL: process.env.GOOGLE_TOKEN_URL || "",
   GOOGLE_USER_INFO_URL: process.env.GOOGLE_USER_INFO_URL || "",
 
-  FACEBOOK_APP_ID: process.env.FACEBOOK_APP_ID || "",
-  FACEBOOK_APP_SECRET: process.env.FACEBOOK_APP_SECRET || "",
+  FACEBOOK_APP_ID: process.env.FACEBOOK_APP_ID || "726041843034437",
+  FACEBOOK_APP_SECRET: process.env.FACEBOOK_APP_SECRET || "a081659398cdc2c97f19d6c3f25c4026",
   
   WATER_MARK_IMAGE: process.env.WATER_MARK_IMAGE || "",
   WATER_MARK_IMAGE_DARK: process.env.WATER_MARK_IMAGE_DARK || "",

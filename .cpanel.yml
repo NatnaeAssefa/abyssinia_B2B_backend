@@ -1,0 +1,7 @@
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/USERNAME/public_html/your-app
+    - /bin/mkdir -p $DEPLOYPATH
+    - /bin/rsync -a --delete --exclude=".git" ./ $DEPLOYPATH/
+    - cd $DEPLOYPATH
+    - /usr/bin/npm install --production

@@ -177,7 +177,7 @@ class QuoteRequestController {
             }
 
             await EmailService.getInstance().sendToTeam({
-              subject: `[RFQ / Sourcing] ${productName} â€” ${value.company || value.name || value.email}`,
+              subject: `[RFQ / Sourcing] ${productName} — ${value.company || value.name || value.email}`,
               html: EmailService.quoteSourcingEmail({
                 product_name: productName,
                 quantity: value.quantity,

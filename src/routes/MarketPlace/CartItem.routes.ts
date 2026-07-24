@@ -94,12 +94,7 @@ const routes = () => {
    *       201:
    *         description: Success
    */
-  router.post(
-    "/",
-    AuthenticateUser,
-    AuthorizeAccess(["write_action_log"]),
-    CartItemController.create
-  );
+  router.post("/", AuthenticateUser, CartItemController.create);
 
   /**
    * @swagger

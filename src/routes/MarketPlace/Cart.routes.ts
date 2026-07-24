@@ -13,6 +13,8 @@ const routes = () => {
 
   const router = express.Router();
 
+  router.get("/me", AuthenticateUser, CartController.getMyCart);
+
   /**
    * @swagger
    * /access_rules/get:

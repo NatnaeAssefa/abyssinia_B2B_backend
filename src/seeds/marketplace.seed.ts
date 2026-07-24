@@ -18,9 +18,13 @@ import {
   Address,
 } from "../models/MarketPlace";
 import { User } from "../models/User";
+import ModelSync from "../models/index";
+import sequelize from "../database/sequelize";
 import { QuoteStatus } from "../models/MarketPlace/QuoteRequest";
 import { AddressType } from "../models/MarketPlace/Address";
 import LogService from "../services/Log/Log.service";
+import { seedSystem } from "./system.seed";
+import { seedUser } from "./user.seed";
 
 export const seedMarketPlace = async () => {
   try {
@@ -58,7 +62,7 @@ const seedCategory = async () => {
       name: "Agriculture",
       slug: "agriculture",
       description: "Agricultural products, equipment, and supplies",
-      image: "https://images.unsplash.com/photo-1500651230702-0e2d8a49d4ad?w=400&q=80",
+      image: "https://www.croptracker.com/images/precision_ag/tool_tiles_field.png",
       icon: "Tractor",
       color: "from-green-800/80 to-green-700/60",
       order: 1,
@@ -68,7 +72,7 @@ const seedCategory = async () => {
       name: "Food and Beverage",
       slug: "food-beverage",
       description: "Food products, beverages, and culinary items",
-      image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80",
+      image: "https://cdn.prod.website-files.com/63cf34956bc59159af577c42/63ea765f1645a485e7a9f091_Food%20%26%20Beverage.webp",
       icon: "Utensils",
       color: "from-red-800/80 to-red-700/60",
       order: 2,
@@ -78,7 +82,7 @@ const seedCategory = async () => {
       name: "Apparel, Textile and Fashion",
       slug: "apparel-textile-fashion",
       description: "Premium clothing, fabrics, and fashion accessories",
-      image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&q=80",
+      image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80&auto=format&fit=crop",
       icon: "Shirt",
       color: "from-blue-900/80 to-blue-800/60",
       order: 3,
@@ -88,7 +92,7 @@ const seedCategory = async () => {
       name: "Industry & Machinery",
       slug: "industry-machinery",
       description: "Industrial equipment, machinery, and tools",
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&q=80",
+      image: "https://www.nmh-sro.com/wp-content/uploads/2018/12/original-equipment-manfacturing-vyrobca-zariadeni-a-komponentov-1024x683.jpg",
       icon: "Cog",
       color: "from-gray-800/80 to-gray-700/60",
       order: 4,
@@ -98,10 +102,60 @@ const seedCategory = async () => {
       name: "Electronic & Communication",
       slug: "electronic-communication",
       description: "Electronics, gadgets, and communication devices",
-      image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&q=80",
+      image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80&auto=format&fit=crop",
       icon: "Smartphone",
       color: "from-purple-900/80 to-purple-800/60",
       order: 5,
+      is_active: true,
+    },
+    {
+      name: "Construction & Real Estate",
+      slug: "construction-real-estate",
+      description: "Building materials, construction equipment, and real estate services",
+      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_g5lDSid1RkFmRztplUoWVr1xu1C1N5BX1w&s",
+      icon: "Hammer",
+      color: "from-orange-800/80 to-orange-700/60",
+      order: 6,
+      is_active: true,
+    },
+    {
+      name: "Home Furniture & Living",
+      slug: "home-furniture-living",
+      description: "Furniture, home decor, and living essentials",
+      image: "https://leathergallery.co.za/cdn/shop/articles/Blog_Covers_-_2024-09-19T091556.704_5cb3ae43-b480-425a-b7b8-03449fe9e4f6_1600x.png?v=1730293216",
+      icon: "Sofa",
+      color: "from-amber-800/80 to-amber-700/60",
+      order: 7,
+      is_active: true,
+    },
+    {
+      name: "Metals and Minerals",
+      slug: "metals-minerals",
+      description: "Metals, minerals, and mining products",
+      image: "https://carboncredits.com/wp-content/uploads/2024/10/shutterstock_1985033336.jpg",
+      icon: "Pickaxe",
+      color: "from-zinc-800/80 to-zinc-700/60",
+      order: 8,
+      is_active: true,
+    },
+    {
+      name: "Chemicals",
+      slug: "chemicals",
+      description: "Chemical products, compounds, and materials",
+      image: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=800&q=80&auto=format&fit=crop",
+      icon: "FlaskConical",
+      color: "from-cyan-900/80 to-cyan-800/60",
+      order: 9,
+      is_active: true,
+    },
+    {
+      name: "Beauty, Personal Care & Health",
+      slug: "beauty-personal-care-health",
+      description: "Beauty products, personal care items, and health supplies",
+      image: "https://www.heinens.com/content/uploads/2022/08/Heinens-Health-And-Beauty-products-800x550-1.jpg",
+      icon: "Heart",
+      color: "from-pink-800/80 to-pink-700/60",
+      order: 10,
       is_active: true,
     },
   ];
@@ -125,7 +179,7 @@ const seedSubcategory = async () => {
       name: "Coffee",
       slug: "coffee",
       description: "Premium Ethiopian coffee beans",
-      image: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=400&q=80",
+      image: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=800&q=80&auto=format&fit=crop",
       order: 1,
       is_active: true,
     },
@@ -134,7 +188,7 @@ const seedSubcategory = async () => {
       name: "Sesame & Oilseeds",
       slug: "oilseeds",
       description: "Export-grade sesame seeds and oilseeds",
-      image: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&q=80",
+      image: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=800&q=80&auto=format&fit=crop",
       order: 2,
       is_active: true,
     },
@@ -143,7 +197,7 @@ const seedSubcategory = async () => {
       name: "Pulses & Legumes",
       slug: "pulses",
       description: "Chickpeas, lentils, and other pulses",
-      image: "https://images.unsplash.com/photo-1584270354949-c26b0d5b4a0c?w=400&q=80",
+      image: "https://images.unsplash.com/photo-1584270354949-c26b0d5b4a0c?w=800&q=80&auto=format&fit=crop",
       order: 3,
       is_active: true,
     },
@@ -152,7 +206,7 @@ const seedSubcategory = async () => {
       name: "Spices",
       slug: "spices",
       description: "Premium spices and herbs",
-      image: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400&q=80",
+      image: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=800&q=80&auto=format&fit=crop",
       order: 4,
       is_active: true,
     },
@@ -161,7 +215,7 @@ const seedSubcategory = async () => {
       name: "Fruits & Vegetables",
       slug: "fruits",
       description: "Fresh fruits and vegetables",
-      image: "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=400&q=80",
+      image: "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=800&q=80&auto=format&fit=crop",
       order: 5,
       is_active: true,
     },
@@ -170,7 +224,7 @@ const seedSubcategory = async () => {
       name: "Processed Foods",
       slug: "processed-foods",
       description: "Processed and packaged food products",
-      image: null,
+      image: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&q=80&auto=format&fit=crop",
       order: 1,
       is_active: true,
     },
@@ -415,49 +469,49 @@ const seedProductImage = async () => {
   const productImages = [
     {
       product_id: products[0]?.id,
-      url: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=800&q=80",
+      url: "https://i0.wp.com/1zpresso.coffee/wp-content/uploads/2025/07/1Z%E8%8B%B1-blog%E5%9C%96%E7%89%871200x675-Arabica.png?ssl=1",
       alt: "Ethiopian Arabica Coffee Beans",
       order: 0,
       is_primary: true,
     },
     {
       product_id: products[0]?.id,
-      url: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=800&q=80",
+      url: "https://images.pexels.com/photos/30444147/pexels-photo-30444147/free-photo-of-close-up-of-dewy-coffee-beans-with-rich-texture.jpeg",
       alt: "Coffee beans close up",
       order: 1,
       is_primary: false,
     },
     {
       product_id: products[1]?.id,
-      url: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=800&q=80",
+      url: "https://www.greendna.in/cdn/shop/products/seasame_1024x.jpg?v=1562518090",
       alt: "White Sesame Seeds",
       order: 0,
       is_primary: true,
     },
     {
       product_id: products[2]?.id,
-      url: "https://images.unsplash.com/photo-1584270354949-c26b0d5b4a0c?w=800&q=80",
+      url: "https://flourist.com/cdn/shop/products/DC81EFFB-91E6-4649-BE20-D7305782F9D0.jpg?v=1621638501",
       alt: "Kabuli Chickpeas",
       order: 0,
       is_primary: true,
     },
     {
       product_id: products[3]?.id,
-      url: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=800&q=80",
+      url: "https://www.hajuta.com/wp-content/uploads/2023/07/Ethiopian-Dry-Ginger.jpg",
       alt: "Ethiopian Ginger",
       order: 0,
       is_primary: true,
     },
     {
       product_id: products[4]?.id,
-      url: "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=800&q=80",
+      url: "https://gregalder.com/yardposts/wp-content/uploads/2020/06/hass-avocado-tree-profile-1.jpg",
       alt: "Hass Avocado",
       order: 0,
       is_primary: true,
     },
     {
       product_id: products[5]?.id,
-      url: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=800&q=80",
+      url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStwxY45iWk8s6v-Kjg2T5n-69O9SEJddvUBw&s",
       alt: "Premium Frankincense",
       order: 0,
       is_primary: true,
@@ -718,7 +772,7 @@ const seedBlogPost = async () => {
       slug: "ethiopia-coffee-export-record-2024",
       excerpt: "Ethiopian coffee exports reached unprecedented levels this year, with specialty grades commanding premium prices in European markets.",
       content: "Ethiopian coffee exports have reached record-breaking levels in 2024, with specialty coffee grades from regions like Yirgacheffe and Sidamo commanding premium prices in international markets. The country's unique terroir and traditional processing methods continue to attract buyers from Europe, North America, and Asia. This growth is driven by increased demand for traceable, high-quality coffee and Ethiopia's commitment to sustainable farming practices.",
-      featured_image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80",
+      featured_image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdcxUHVkjS7jdtkmaySP9TDYApY-AGAVZaGg&s",
       author_name: "Market Analysis Team",
       author_email: "analysis@abyssinab2b.com",
       category: "Market Insights",
@@ -734,7 +788,7 @@ const seedBlogPost = async () => {
       slug: "new-quality-standards-sesame-exports",
       excerpt: "The Ethiopian Commodity Exchange introduces enhanced quality grading standards for sesame seeds, improving buyer confidence.",
       content: "The Ethiopian Commodity Exchange has introduced new quality grading standards for sesame seed exports, focusing on purity, moisture content, and oil quality. These enhanced standards are expected to improve buyer confidence and command higher prices in international markets. Suppliers are adapting their processing methods to meet these new requirements, ensuring Ethiopia remains competitive in the global sesame market.",
-      featured_image: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=600&q=80",
+      featured_image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIkAgKKNb_O_Ju1PfPHJqTGjGYK6E3RGwA4Q&s",
       author_name: "Trade Compliance",
       author_email: "compliance@abyssinab2b.com",
       category: "Regulations",
@@ -750,7 +804,7 @@ const seedBlogPost = async () => {
       slug: "sustainable-farming-practices-boost-yields",
       excerpt: "Ethiopian cooperatives adopting sustainable farming methods see 30% increase in crop yields while maintaining organic certification.",
       content: "Ethiopian agricultural cooperatives that have adopted sustainable farming practices are reporting significant increases in crop yields, with some seeing up to 30% improvement while maintaining organic certification. These practices include crop rotation, organic fertilizers, and water conservation techniques. The success of these initiatives is attracting international buyers who value both quality and sustainability.",
-      featured_image: "https://images.unsplash.com/photo-1592982537447-6f2a6a0c7c18?w=600&q=80",
+      featured_image: "https://agtech.folio3.com/wp-content/uploads/2026/03/practices-to-increase-crop-yields-featured.jpg",
       author_name: "Sustainability Team",
       author_email: "sustainability@abyssinab2b.com",
       category: "Sustainability",
@@ -925,3 +979,29 @@ const seedAddress = async () => {
   }
   LogService.LogInfo(`Seeded ${addresses.length} addresses`);
 };
+
+export const runMarketPlaceSeed = async () => {
+  try {
+    ModelSync(sequelize);
+    await sequelize.sync({ alter: false, logging: false });
+    LogService.LogInfo("Database synced successfully for marketplace seed");
+
+    // Keep dependency order when running this file directly.
+    await seedSystem();
+    await seedUser();
+    await seedMarketPlace();
+
+    LogService.LogInfo("Marketplace seed script completed successfully");
+    await sequelize.close();
+    process.exit(0);
+  } catch (error: any) {
+    LogService.LogError(`Marketplace seed script failed: ${error.message}`);
+    await sequelize.close();
+    process.exit(1);
+  }
+};
+
+// Run if called directly.
+if (require.main === module) {
+  runMarketPlaceSeed();
+}
