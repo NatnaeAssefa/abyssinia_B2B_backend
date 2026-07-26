@@ -18,12 +18,56 @@ import { Role, User } from "../../models/User";
 import { constants, env } from "../../config";
 import LogService from "../../services/Log/Log.service";
 import { Op } from "sequelize";
-import { isValid } from "date-fns";
-import { parse } from "date-fns";
 import { UserDAL } from "../../dals/User";
 import { Cart } from "../../models/MarketPlace";
 
 const ModelName = "User";
+
+const MONTH_NAMES: Record<string, number> = {
+  january: 0,
+  february: 1,
+  march: 2,
+  april: 3,
+  may: 4,
+  june: 5,
+  july: 6,
+  august: 7,
+  september: 8,
+  october: 9,
+  november: 10,
+  december: 11,
+};
+
+/** Parses `dd MM yyyy` (e.g. 17 12 2024) or `dd MMMM yyyy` (e.g. 17 December 2024). */
+const parseFilterDate = (dateString: string): Date | null => {
+  const parts = dateString.trim().split(/\s+/);
+  if (parts.length !== 3) return null;
+
+  const day = Number(parts[0]);
+  const year = Number(parts[2]);
+  if (!Number.isInteger(day) || !Number.isInteger(year)) return null;
+  if (day < 1 || day > 31 || year < 1000) return null;
+
+  let month: number;
+  if (/^\d{1,2}$/.test(parts[1])) {
+    month = Number(parts[1]) - 1;
+  } else {
+    month = MONTH_NAMES[parts[1].toLowerCase()];
+    if (month === undefined) return null;
+  }
+
+  if (month < 0 || month > 11) return null;
+
+  const date = new Date(year, month, day);
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month ||
+    date.getDate() !== day
+  ) {
+    return null;
+  }
+  return date;
+};
 
 class UserController {
   static findMany(request: any, response: Response) {
@@ -893,20 +937,10 @@ class UserController {
       const user: User = request.user;
       let parsedQuery: any = ParseQuery(request.query);
 
-      // Function to parse date from different formats
-      const parseDate = (dateString: string) => {
-        const formats = ["dd MM yyyy", "dd MMMM yyyy"];
-        for (const format of formats) {
-          const parsedDate = parse(dateString, format, new Date());
-          if (isValid(parsedDate)) return parsedDate;
-        }
-        return null;
-      };
-
       let whereClause: any = {};
 
-      const fromDate = from ? parseDate(from) : null;
-      const toDate = to ? parseDate(to) : null;
+      const fromDate = from ? parseFilterDate(from) : null;
+      const toDate = to ? parseFilterDate(to) : null;
 
       if ((from && !fromDate) || (to && !toDate)) {
         return ServerResponse(
