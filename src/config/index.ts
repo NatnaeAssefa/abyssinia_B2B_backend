@@ -23,6 +23,8 @@ export const env: any = {
   DB_NAME: process.env.DB_NAME || "abyssinia",
   DB_USERNAME: process.env.DB_USERNAME || "postgres",
   DB_PASSWORD: process.env.DB_PASSWORD || "jehoaddan6",
+  // Managed Postgres (RDS) requires SSL; local instances reject it, so set DB_SSL=false there.
+  DB_SSL: process.env.DB_SSL !== "false",
 
   // Redis
   REDIS_HOST: process.env.REDIS_HOST || "localhost",

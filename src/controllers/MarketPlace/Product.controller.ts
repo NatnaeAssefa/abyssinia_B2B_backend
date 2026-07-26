@@ -22,11 +22,11 @@ const productIncludes = [
   { model: Category },
   { model: Subcategory },
   { model: Supplier },
-  { model: ProductImage },
-  { model: ProductSpecification },
-  { model: ProductIncoterm },
-  { model: ProductTargetMarket },
-  { model: ProductUseCase },
+  { model: ProductImage, as: "product_images", required: false },
+  { model: ProductSpecification, as: "specifications", required: false },
+  { model: ProductIncoterm, as: "incoterms", required: false },
+  { model: ProductTargetMarket, as: "target_markets", required: false },
+  { model: ProductUseCase, as: "use_cases", required: false },
 ];
 
 /** Merge common flat query params (e.g. ?category_id=...&limit=50) into Sequelize options */
