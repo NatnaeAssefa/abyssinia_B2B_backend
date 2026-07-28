@@ -1,63 +1,110 @@
-# Database Seed Files
+# Database Seed Scripts
 
-This directory contains seed scripts for populating the database with initial data for development and testing.
+Idempotent seed scripts for local development and **Render production** deployments.
 
-## Structure
+## Quick Start
 
-- `index.ts` - Main seed runner that orchestrates all seed files
-- `system.seed.ts` - Seeds System models (Config, File, Notification)
-- `user.seed.ts` - Seeds User models (Role, AccessRule, User, UserProfile, ActionLog)
-- `marketplace.seed.ts` - Seeds MarketPlace models (all B2B marketplace models)
-
-## Running Seeds
-
-### Run all seeds:
 ```bash
+# From backend/
 npm run seed
 ```
 
-Or directly with tsx:
+Safe to re-run — uses `findOrCreate` / `upsertChild` throughout, so duplicate records are not created on redeploy.
+
+## Render Deployment
+
+### 1. Set environment variables on Render
+
+| Variable | Example | Notes |
+|----------|---------|-------|
+| `DB_HOST` | `dpg-xxx.oregon-postgres.render.com` | From Render Postgres dashboard |
+| `DB_NAME` | `abyssiniab2b` | |
+| `DB_USERNAME` | `postgresql` | |
+| `DB_PASSWORD` | *(secret)* | |
+| `DB_SSL` | `true` | Required for Render Postgres |
+| `DB_TYPE` | `postgres` | |
+| `SEED_DEFAULT_PASSWORD` | `YourSecurePassword!` | Password for demo accounts |
+| `PRODUCTION` | `true` | |
+
+### 2. Run seeds after first deploy
+
+**Option A — Render Shell (recommended for first seed):**
+
 ```bash
-tsx src/seeds/index.ts
+cd backend && npm run seed
+```
+
+**Option B — One-off deploy command** (add to Render service temporarily):
+
+```
+npm run seed && npm start
+```
+
+### 3. Verify
+
+After seeding, these demo accounts are available:
+
+| Email | Role | Password |
+|-------|------|----------|
+| `superadmin@abyssinab2b.com` | Super Admin | `SEED_DEFAULT_PASSWORD` or `password123` |
+| `admin@abyssinab2b.com` | Admin | same |
+| `buyer1@abyssinab2b.com` | Buyer | same |
+| `buyer2@abyssinab2b.com` | Buyer | same |
+| `supplier1@abyssinab2b.com` | Supplier | same |
+| `supplier2@abyssinab2b.com` | Supplier | same |
+
+> Change `SEED_DEFAULT_PASSWORD` on Render before running seeds in production.
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run seed` | Full seed: system → users → marketplace |
+| `npm run seed:marketplace` | Marketplace only (also seeds system + users as dependencies) |
+| `npm run seed:categories` | Add extra categories (already included in full seed) |
+
+## Structure
+
+```
+src/seeds/
+├── index.ts              # Main runner
+├── seed.helpers.ts       # DB init, column migration, upsertChild helper
+├── system.seed.ts        # Config, File entries
+├── user.seed.ts          # Roles, users, profiles, action logs
+├── marketplace.seed.ts   # Categories, products, quotes, blog, etc.
+└── categories.extra.seed.ts  # Standalone extra categories (optional)
 ```
 
 ## Seed Data Overview
 
-### System Models
-- **Config**: Site configuration settings
-- **File**: Default file entries
-- **Notification**: Welcome notifications for users
+### System
+- Site config (name, emails, phone, pagination)
+- Default file entries (avatar, product placeholder, logo)
 
-### User Models
-- **AccessRule**: 10+ access rules for different permissions
-- **Role**: 4 roles (Super Admin, Admin, Buyer, Supplier)
-- **User**: 6 users (1 Super Admin, 1 Admin, 2 Buyers, 2 Suppliers)
-  - Default password for all users: `password123`
-- **UserProfile**: Profiles for all users
-- **ActionLog**: Sample action logs
+### Users
+- 4 roles: Super Admin, Admin, Buyer, Supplier
+- 6 demo users with profiles and welcome notifications
 
-### MarketPlace Models
-- **Category**: 5 main categories (Agriculture, Food & Beverage, etc.)
-- **Subcategory**: 6 subcategories (Coffee, Sesame, Pulses, Spices, Fruits, Processed Foods)
-- **Supplier**: 2 verified suppliers linked to supplier users
-- **Product**: 6 products (Coffee, Sesame, Chickpeas, Ginger, Avocado, Frankincense)
-- **ProductImage**: Images for all products
-- **ProductSpecification**: Specifications for products
-- **ProductIncoterm**: Incoterms (EXW, FOB, CIF) for products
-- **ProductTargetMarket**: Target markets for products
-- **ProductUseCase**: Use cases for products
-- **Cart**: Carts for buyer users
-- **CartItem**: Sample cart items
-- **QuoteRequest**: Sample quote requests (both authenticated and guest)
-- **BlogPost**: 3 blog posts
-- **NewsletterSubscription**: Sample newsletter subscriptions
-- **RecentlyViewed**: Recently viewed products for users
-- **ProductView**: Product view tracking data
-- **Address**: Billing and shipping addresses for buyers
+### Marketplace
+- **10 categories** (Agriculture, Food & Beverage, Apparel, etc.)
+- **6 subcategories** (Coffee, Sesame, Pulses, Spices, Fruits, Processed Foods)
+- **2 verified suppliers** linked to supplier users
+- **6 products** with images, specs, incoterms, target markets, use cases
+- **3 quote/sourcing requests** including new fields:
+  - Trade Term / Incoterm (FOB, CIF, etc.)
+  - Payment Term (T/T, L/C, D/P)
+  - Target Country, Destination Port
+  - Shipping Method, Lead Time
+  - Product name (for contact-form sourcing without a product ID)
+- **3 blog posts**, newsletter subscriptions, carts, addresses
+
+## Schema Compatibility
+
+`seed.helpers.ts` automatically adds missing `quote_requests` columns on Render databases that were created before the sourcing-request feature. This runs before seeding and is safe to execute multiple times.
 
 ## Notes
 
-- Seeds run in dependency order to respect foreign key constraints
-- Uses `findOrCreate` to avoid duplicates on re-runs
-- All passwords are hashed using bcrypt
-- Default password for all seeded users: `password123`
+- Seeds run in dependency order (system → users → marketplace)
+- All child records use `findOrCreate` — safe for re-deploys
+- Passwords are bcrypt-hashed using `SEED_DEFAULT_PASSWORD` env var
+- Does **not** use `alter: true` on sync — production-safe

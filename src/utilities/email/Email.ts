@@ -1,6 +1,6 @@
-import nodemailer from "nodemailer";
 import { env } from "../../config";
 import { User } from "../../models/User";
+import { dispatchEmail } from "./transport";
 
 interface EmailOptions {
   from: string;
@@ -76,19 +76,6 @@ const detailsTable = (rows: string) => `
 
 export class EmailService {
   private static instance: EmailService;
-  private transporter: nodemailer.Transporter;
-
-  constructor() {
-    this.transporter = nodemailer.createTransport({
-      host: env.SMTP_HOST,
-      port: Number(env.SMTP_PORT),
-      secure: Number(env.SMTP_PORT) === 465,
-      auth: {
-        user: env.SMTP_USER,
-        pass: env.SMTP_PASS,
-      },
-    });
-  }
 
   public static getInstance(): EmailService {
     if (!EmailService.instance) {
@@ -104,7 +91,7 @@ export class EmailService {
 
   async sendMail(options: EmailOptions): Promise<void> {
     try {
-      await this.transporter.sendMail(options);
+      await dispatchEmail(options);
       console.log("Email sent successfully");
     } catch (error) {
       console.error("Error sending email:", error);
@@ -112,7 +99,7 @@ export class EmailService {
   }
 
   async sendToTeam(options: Omit<EmailOptions, "to" | "from"> & { from?: string }): Promise<void> {
-    await this.transporter.sendMail({
+    await dispatchEmail({
       from: options.from || env.COMPANY_EMAIL,
       to: EmailService.getNotificationRecipients(),
       subject: options.subject,
@@ -120,7 +107,7 @@ export class EmailService {
       html: options.html,
       replyTo: options.replyTo,
     });
-    console.log("Team notification email sent successfully");
+    console.log(`Team notification sent via ${env.EMAIL_TRANSPORT || "smtp"}`);
   }
 
   public static verificationEmail(

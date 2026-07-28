@@ -47,6 +47,11 @@ export const env: any = {
   SMTP_PORT: process.env.SMTP_PORT || "587",
   SMTP_USER: process.env.SMTP_USER || "test",
   SMTP_PASS: process.env.SMTP_PASS || "password",
+  SMTP_CONNECTION_TIMEOUT: process.env.SMTP_CONNECTION_TIMEOUT || "30000",
+  // Render free tier blocks SMTP ports — use "resend" or "brevo" in production
+  EMAIL_TRANSPORT: process.env.EMAIL_TRANSPORT || "smtp",
+  RESEND_API_KEY: process.env.RESEND_API_KEY || "",
+  BREVO_API_KEY: process.env.BREVO_API_KEY || "",
 
   // System
   FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost",

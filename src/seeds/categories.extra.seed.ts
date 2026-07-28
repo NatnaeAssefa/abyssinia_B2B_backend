@@ -1,5 +1,4 @@
-import ModelSync from "../models/index";
-import sequelize from "../database/sequelize";
+import { initSeedDatabase, closeSeedConnection } from "./seed.helpers";
 import { Category } from "../models/MarketPlace";
 import LogService from "../services/Log/Log.service";
 
@@ -69,15 +68,12 @@ export const seedExtraCategories = async () => {
 
 export const runExtraCategorySeed = async () => {
   try {
-    ModelSync(sequelize);
-    await sequelize.sync({ alter: false, logging: false });
+    await initSeedDatabase();
     await seedExtraCategories();
-    await sequelize.close();
-    process.exit(0);
+    await closeSeedConnection(0);
   } catch (error: any) {
     LogService.LogError(`Extra category seed failed: ${error.message}`);
-    await sequelize.close();
-    process.exit(1);
+    await closeSeedConnection(1);
   }
 };
 

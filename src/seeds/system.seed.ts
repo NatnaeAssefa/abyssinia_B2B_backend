@@ -67,6 +67,18 @@ const seedConfig = async () => {
       type: ConfigType.INTEGER,
       value: "20",
     },
+    {
+      key: "sales_email",
+      object_type: "Site",
+      type: ConfigType.STRING,
+      value: "sales@abyssiniab2b.com",
+    },
+    {
+      key: "info_email",
+      object_type: "Site",
+      type: ConfigType.STRING,
+      value: "info@abyssiniab2b.com",
+    },
   ];
 
   for (const config of configs) {
@@ -134,6 +146,12 @@ export const seedNotification = async (userId: string) => {
   ];
 
   for (const notification of notifications) {
-    await Notification.create(notification);
+    await Notification.findOrCreate({
+      where: {
+        user_id: userId,
+        notification_title: notification.notification_title,
+      },
+      defaults: notification,
+    });
   }
 };

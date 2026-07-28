@@ -6,7 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "ts-node src/app.ts",
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "seed": "ts-node src/seeds/index.ts",
+    "seed:marketplace": "ts-node src/seeds/marketplace.seed.ts",
+    "seed:categories": "ts-node src/seeds/categories.extra.seed.ts"
   },
   "keywords": [],
   "author": "",

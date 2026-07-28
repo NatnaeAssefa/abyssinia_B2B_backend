@@ -4,6 +4,7 @@ import { File } from "../models/System";
 import { AccessType, UserType, UserStatus } from "../utilities/constants/Constants";
 import { seedNotification } from "./system.seed";
 import LogService from "../services/Log/Log.service";
+import { getSeedPassword } from "./seed.helpers";
 
 export const seedUser = async () => {
   try {
@@ -172,7 +173,7 @@ const seedRole = async () => {
 };
 
 const seedUserData = async () => {
-  const hashedPassword = await bcrypt.hash("password123", 10);
+  const hashedPassword = await bcrypt.hash(getSeedPassword(), 10);
   const lastUsedKey = await bcrypt.genSalt(10);
 
   // Get roles
@@ -350,7 +351,10 @@ const seedActionLog = async () => {
 
   for (const log of actionLogs) {
     if (log.user_id) {
-      await ActionLog.create(log);
+      await ActionLog.findOrCreate({
+        where: { user_id: log.user_id, action: log.action, object: log.object },
+        defaults: log,
+      });
     }
   }
   LogService.LogInfo(`Seeded ${actionLogs.length} action logs`);

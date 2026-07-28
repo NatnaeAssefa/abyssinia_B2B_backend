@@ -18,13 +18,13 @@ import {
   Address,
 } from "../models/MarketPlace";
 import { User } from "../models/User";
-import ModelSync from "../models/index";
 import sequelize from "../database/sequelize";
 import { QuoteStatus } from "../models/MarketPlace/QuoteRequest";
 import { AddressType } from "../models/MarketPlace/Address";
 import LogService from "../services/Log/Log.service";
 import { seedSystem } from "./system.seed";
 import { seedUser } from "./user.seed";
+import { initSeedDatabase, upsertChild } from "./seed.helpers";
 
 export const seedMarketPlace = async () => {
   try {
@@ -520,7 +520,7 @@ const seedProductImage = async () => {
 
   for (const image of productImages) {
     if (image.product_id) {
-      await ProductImage.create(image);
+      await upsertChild(ProductImage, { product_id: image.product_id, url: image.url }, image);
     }
   }
   LogService.LogInfo(`Seeded ${productImages.length} product images`);
@@ -594,7 +594,11 @@ const seedProductSpecification = async () => {
 
   for (const spec of specifications) {
     if (spec.product_id) {
-      await ProductSpecification.create(spec);
+      await upsertChild(
+        ProductSpecification,
+        { product_id: spec.product_id, label: spec.label },
+        spec
+      );
     }
   }
   LogService.LogInfo(`Seeded ${specifications.length} product specifications`);
@@ -618,7 +622,11 @@ const seedProductIncoterm = async () => {
 
   for (const incoterm of incoterms) {
     if (incoterm.product_id) {
-      await ProductIncoterm.create(incoterm);
+      await upsertChild(
+        ProductIncoterm,
+        { product_id: incoterm.product_id, term: incoterm.term },
+        incoterm
+      );
     }
   }
   LogService.LogInfo(`Seeded ${incoterms.length} product incoterms`);
@@ -643,7 +651,11 @@ const seedProductTargetMarket = async () => {
 
   for (const market of targetMarkets) {
     if (market.product_id) {
-      await ProductTargetMarket.create(market);
+      await upsertChild(
+        ProductTargetMarket,
+        { product_id: market.product_id, market: market.market },
+        market
+      );
     }
   }
   LogService.LogInfo(`Seeded ${targetMarkets.length} product target markets`);
@@ -668,7 +680,11 @@ const seedProductUseCase = async () => {
 
   for (const useCase of useCases) {
     if (useCase.product_id) {
-      await ProductUseCase.create(useCase);
+      await upsertChild(
+        ProductUseCase,
+        { product_id: useCase.product_id, use_case: useCase.use_case },
+        useCase
+      );
     }
   }
   LogService.LogInfo(`Seeded ${useCases.length} product use cases`);
@@ -729,11 +745,17 @@ const seedQuoteRequest = async () => {
   const quoteRequests = [
     {
       product_id: products[0]?.id,
+      product_name: products[0]?.name || "Ethiopian Arabica Coffee - Yirgacheffe",
       user_id: buyers[0]?.id,
       quantity: "100 MT",
       packaging: "60 kg jute bags",
-      destination: "Rotterdam, Netherlands",
+      destination: "Netherlands",
       incoterm: "CIF",
+      payment_term: "L/C",
+      target_country: "Netherlands",
+      destination_port: "Rotterdam",
+      shipping_method: "Sea Freight",
+      lead_time: "30-45 days after contract",
       name: null,
       email: buyers[0]?.email || "buyer1@abyssinab2b.com",
       company: "Global Trading Co.",
@@ -743,11 +765,17 @@ const seedQuoteRequest = async () => {
     },
     {
       product_id: products[1]?.id,
+      product_name: products[1]?.name || "White Sesame Seed",
       user_id: null,
       quantity: "200 MT",
       packaging: "50 kg PP bags",
-      destination: "Shanghai, China",
+      destination: "China",
       incoterm: "FOB",
+      payment_term: "T/T",
+      target_country: "China",
+      destination_port: "Shanghai",
+      shipping_method: "Sea Freight",
+      lead_time: "45 days",
       name: "Guest Buyer",
       email: "guest@example.com",
       company: "China Import Ltd",
@@ -755,12 +783,33 @@ const seedQuoteRequest = async () => {
       notes: "Looking for competitive pricing",
       status: QuoteStatus.PENDING,
     },
+    {
+      product_id: null,
+      product_name: "Ethiopian Pulses Mix",
+      user_id: null,
+      quantity: "50 MT",
+      packaging: "25 kg PP bags",
+      destination: "UAE",
+      incoterm: "FOB",
+      payment_term: "D/P",
+      target_country: "United Arab Emirates",
+      destination_port: "Jebel Ali",
+      shipping_method: "Sea Freight",
+      lead_time: "60 days",
+      name: "Ahmed Al-Rashid",
+      email: "ahmed@example.com",
+      company: "Gulf Foods Trading",
+      phone: "+971501234567",
+      notes: "Sourcing request from contact form — no specific product selected",
+      status: QuoteStatus.PENDING,
+    },
   ];
 
   for (const quote of quoteRequests) {
-    if (quote.product_id) {
-      await QuoteRequest.create(quote);
-    }
+    await QuoteRequest.findOrCreate({
+      where: { email: quote.email, product_name: quote.product_name },
+      defaults: quote,
+    });
   }
   LogService.LogInfo(`Seeded ${quoteRequests.length} quote requests`);
 };
@@ -928,7 +977,11 @@ const seedProductView = async () => {
 
   for (const view of productViews) {
     if (view.product_id) {
-      await ProductView.create(view);
+      await upsertChild(
+        ProductView,
+        { product_id: view.product_id, ip_address: view.ip_address },
+        view
+      );
     }
   }
   LogService.LogInfo(`Seeded ${productViews.length} product views`);
@@ -974,7 +1027,11 @@ const seedAddress = async () => {
 
   for (const address of addresses) {
     if (address.user_id) {
-      await Address.create(address);
+      await upsertChild(
+        Address,
+        { user_id: address.user_id, type: address.type, street: address.street },
+        address
+      );
     }
   }
   LogService.LogInfo(`Seeded ${addresses.length} addresses`);
@@ -982,9 +1039,7 @@ const seedAddress = async () => {
 
 export const runMarketPlaceSeed = async () => {
   try {
-    ModelSync(sequelize);
-    await sequelize.sync({ alter: false, logging: false });
-    LogService.LogInfo("Database synced successfully for marketplace seed");
+    await initSeedDatabase();
 
     // Keep dependency order when running this file directly.
     await seedSystem();
